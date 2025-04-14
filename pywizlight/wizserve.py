@@ -1,5 +1,4 @@
 import asyncio
-import time
 import cgi
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pywizlight import wizlight, PilotBuilder, discovery
@@ -8,7 +7,7 @@ hostName = "localhost"
 serverPort = 8080
 
 class wizServer(BaseHTTPRequestHandler):
-    def __init__(self, lights)
+    def __init__(self, lights):
         self.lights = lights
     
     def do_GET(self):
@@ -59,46 +58,6 @@ async def main():
         # Turn off all available bulbs
         # await bulb.turn_off()
 
-'''
-    # Set up a standard light
-    light = wizlight(bulbs[0].ip)
-    # Set up the light with a custom port
-    #light = wizlight("your bulb's IP address", port=12345)
-
-    # The following calls need to be done inside an asyncio coroutine
-    # to run them from normal synchronous code, you can wrap them with
-    # asyncio.run(..).
-
-    # Turn the light on into "rhythm mode"
-    await light.turn_on(PilotBuilder())
-    # Set bulb brightness
-    await light.turn_on(PilotBuilder(brightness = 255))
-
-    # Set bulb brightness (with async timeout)
-    timeout = 10
-    await asyncio.wait_for(light.turn_on(PilotBuilder(brightness = 255)), timeout)
-
-    # Set bulb to warm white
-    await light.turn_on(PilotBuilder(warm_white = 255))
-
-    # Set RGB values
-    # red to 0 = 0%, green to 128 = 50%, blue to 255 = 100%
-    await light.turn_on(PilotBuilder(rgb = (0, 128, 255)))
-
-    # Get the current color temperature, RGB values
-    state = await light.updateState()
-    print(state.get_colortemp())
-    red, green, blue = state.get_rgb()
-    print(f"red {red}, green {green}, blue {blue}")
-
-    # Start a scene
-    await light.turn_on(PilotBuilder(scene = 4)) # party
-
-    # Get the name of the current scene
-    state = await light.updateState()
-    print(state.get_scene())
-'''
-
     # Get the features of the bulb
     bulb_type = await bulbs[0].get_bulbtype()
     print("IP:", bulbs[0].ip)
@@ -109,9 +68,6 @@ async def main():
     print("Max K:", bulb_type.kelvin_range.max) # returns max kelvin in INT
     print("Min K:", bulb_type.kelvin_range.min) # returns min kelvin in INT
     print("Mod Name:", bulb_type.name) # returns the module name of the bulb
-
-    # Turn the light off
-    await light.turn_off()
 
     # Do operations on multiple lights in parallel
     #bulb1 = wizlight("<your bulb1 ip>")
