@@ -8,6 +8,9 @@ hostName = "localhost"
 serverPort = 8080
 
 class wizServer(BaseHTTPRequestHandler):
+    def __init__(self, lights)
+        self.lights = lights
+    
     def do_GET(self):
         if self.path == '/':
             self.path = '/index.html'
@@ -122,7 +125,7 @@ async def main():
     #  def main:
     #    asyncio.run(async turn_bulbs_on(bulb1, bulb2))
 
-    webServer = HTTPServer((hostName, serverPort), wizServer)
+    webServer = HTTPServer((hostName, serverPort), wizServer(bulbs))
     print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:
