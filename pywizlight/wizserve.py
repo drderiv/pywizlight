@@ -7,14 +7,15 @@ hostName = "localhost"
 serverPort = 8080
 
 class wizServer(BaseHTTPRequestHandler):
-    def __init__(self, lights):
+    def __init__(self, lights, light_setting):
         self.lights = lights
+        self.light_setting = light_setting
     
     def do_GET(self):
         if self.path == '/':
             self.path = '/index.html'
         try:
-            file_to_open = open(self.path[1:]).read()
+            file_to_open = open(self.path[1:]).read().replace("{ip}", self.lights[0].ip).replace("{dim}", self.light_settings.features.brightness)
             self.send_response(200)
             self.end_headers()
             self.wfile.write(bytes(file_to_open, 'utf-8'))
@@ -61,6 +62,7 @@ async def main():
     # Get the features of the bulb
     bulb_type = await bulbs[0].get_bulbtype()
     print("IP:", bulbs[0].ip)
+    print("MAC:", bulbs[0].mac)
     print("Bightness:", bulb_type.features.brightness) # returns True if brightness is supported
     print("Colored:", bulb_type.features.color) # returns True if color is supported
     print("Temperatured:", bulb_type.features.color_tmp) # returns True if color temperatures are supported
@@ -81,7 +83,7 @@ async def main():
     #  def main:
     #    asyncio.run(async turn_bulbs_on(bulb1, bulb2))
 
-    webServer = HTTPServer((hostName, serverPort), wizServer(bulbs))
+    webServer = HTTPServer((hostName, serverPort), wizServer(bulbs, bulb_type))
     print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:
