@@ -1,5 +1,6 @@
 import asyncio
 import time
+import cgi
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pywizlight import wizlight, PilotBuilder, discovery
 
@@ -8,14 +9,38 @@ serverPort = 8080
 
 class wizServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(bytes("<html><head><title>https://pythonbasics.org</title></head>", "utf-8"))
-        self.wfile.write(bytes("<p>Request: %s</p>" % self.path, "utf-8"))
-        self.wfile.write(bytes("<body>", "utf-8"))
-        self.wfile.write(bytes("<p>This is an example web server.</p>", "utf-8"))
-        self.wfile.write(bytes("</body></html>", "utf-8"))
+        if self.path == '/':
+            self.path = '/index.html'
+        try:
+            file_to_open = open(self.path[1:]).read()
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(bytes(file_to_open, 'utf-8'))
+        except:
+            self.send_response(404, 'File Not Found')
+            self.end_headers()
+            self.wfile.write(bytes("File not found", 'utf-8'))
+
+    def do_POST(self):
+        if self.path == '/submit':
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD': 'POST'}
+            )
+            self.send_response(200)
+            self.send_header('Content-type', 'text/html')
+            self.end_headers()
+
+            response_content = "<html><body><h1>Form Data:</h1>"
+            for field in form.keys():
+                response_content += f"<p>{field}: {form.getvalue(field)}</p>"
+            response_content += "</body></html>"
+            self.wfile.write(bytes(response_content, "utf-8"))
+        else:
+             self.send_response(404, 'Not Found')
+             self.end_headers()
+             self.wfile.write(b'Not found')
 
 async def main():
     """Sample code to work with bulbs."""
@@ -31,6 +56,7 @@ async def main():
         # Turn off all available bulbs
         # await bulb.turn_off()
 
+'''
     # Set up a standard light
     light = wizlight(bulbs[0].ip)
     # Set up the light with a custom port
@@ -68,6 +94,7 @@ async def main():
     # Get the name of the current scene
     state = await light.updateState()
     print(state.get_scene())
+'''
 
     # Get the features of the bulb
     bulb_type = await bulbs[0].get_bulbtype()
